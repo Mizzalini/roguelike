@@ -1,3 +1,4 @@
 - Rework FOV (https://python-tcod.readthedocs.io/en/latest/tcod/map.html#tcod.map.compute_fov)
 - Zoom in on character more and make rooms / hallways bigger
 - Save / load feature
+- Timing for enemy turns
