@@ -1,6 +1,3 @@
-# This file contains the EventHandler class, which is responsible for handling input events and converting them into
-# actions.
-
 from typing import Optional
 
 import tcod.event
@@ -8,15 +5,35 @@ import tcod.event
 from actions import Action, EscapeAction, MovementAction
 
 
-# The EventHandler class is a subclass of tcod.event.EventDispatch that is responsible for handling input events and
-# converting them into actions.
 class EventHandler(tcod.event.EventDispatch[Action]):
-    # The ev_quit method is called when the player tries to close the game window.
+    """
+    An event handler for the game.
+    """
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+        """
+        Handle the quit event.
+
+        Args:
+            event (tcod.event.Quit): The quit event.
+
+        Returns:
+            Optional[Action]: The action to be taken.
+
+        Raises:
+            SystemExit: The system exit exception.
+        """
         raise SystemExit()
 
-    # The ev_keydown method is called when the player presses a key.
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        """
+        Handle the keydown event.
+
+        Args:
+            event (tcod.event.KeyDown): The keydown event.
+
+        Returns:
+            Optional[Action]: The action to be taken.
+        """
         action: Optional[Action] = None
 
         key = event.sym

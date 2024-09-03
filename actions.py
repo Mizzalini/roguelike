@@ -1,18 +1,33 @@
-# Holds the different types of 'actions' that can be taken by the player
-
-# The Action class is a base class that other actions will inherit from.
 class Action:
+    """
+    A generic action to represent an action taken by the player.
+    """
     pass
 
 
-# The EscapeAction class is a subclass of Action that represents the player wanting to exit the game.
 class EscapeAction(Action):
+    """
+    An action to exit the game.
+    """
     pass
 
 
-# The MovementAction class is a subclass of Action that represents the player wanting to move in a direction.
 class MovementAction(Action):
+    """
+    An action to move in a direction.
+
+    Attributes:
+        dx: The amount to move in the x-direction.
+        dy: The amount to move in the y-direction.
+    """
     def __init__(self, dx: int, dy: int):
+        """
+        Initialize the movement action.
+
+        Args:
+            dx: The amount to move in the x-direction.
+            dy: The amount to move in the y-direction.
+        """
         super().__init__()
 
         self.dx = dx
