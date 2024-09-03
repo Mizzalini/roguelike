@@ -1,0 +1,53 @@
+"""
+This file contains the different types of tiles that will be used in the game.
+"""
+
+from typing import Tuple
+
+import numpy as np  # type: ignore
+
+# Tile graphics structured type compatible with Console.tiles_rgb.
+graphics_dt = np.dtype(
+    [
+        ("ch", np.int32),  # The character, represented as an integer.
+        ("fg", "3B"),  # The foreground colour, represented as RGB.
+        ("bg", "3B"), # The background colour, represented as RGB.
+    ]
+)
+
+# Tile struct used for statically defined tile data.
+tile_dt = np.dtype(
+    [
+        ("walkable", np.bool),  # True if this tile can be walked over.
+        ("transparent", np.bool),  # True if this tile doesn't block FOV.
+        ("dark", graphics_dt),  # Graphics for when this tile is not in FOV.
+    ]
+)
+
+
+def new_tile(
+    *,  # Enforce the use of keywords, so that parameter order doesn't matter.
+    walkable: int,
+    transparent: int,
+    dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
+) -> np.ndarray:
+    """
+    Helper function for defining individual tile data as an array.
+
+    Args:
+        walkable: True if this tile can be walked over.
+        transparent: True if this tile doesn't block FOV.
+        dark: Graphics for when this tile is not in FOV.
+
+    Returns:
+        An array of tile data.
+    """
+    return np.array((walkable, transparent, dark), dtype=tile_dt)
+
+
+floor = new_tile(
+    walkable=True, transparent=True, dark=(ord(" "), (255, 255, 255), (50, 50, 150))
+)
+wall = new_tile(
+    walkable=False, transparent=False, dark=(ord(" "), (255, 255, 255), (0, 0, 100))
+)

@@ -3,8 +3,8 @@ from typing import Set, Iterable, Any
 from tcod.context import Context
 from tcod.console import Console
 
-from actions import EscapeAction, MovementAction
 from entity import Entity
+from game_map import GameMap
 from input_handlers import EventHandler
 
 
@@ -15,21 +15,24 @@ class Engine:
     Responsible for drawing the map and entities, and handling input.
 
     Attributes:
-        entities (Set[Entity]): The game entities.
+        entities (Set): The entities in the game.
         event_handler (EventHandler): The event handler.
+        game_map (GameMap): The game map.
         player (Entity): The player entity.
     """
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler, player: Entity):
+    def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
         """
         Initialize the engine.
 
         Args:
-            entities (Set[Entity]): The game entities.
+            entities (Set): The entities in the game.
             event_handler (EventHandler): The event handler.
+            game_map (GameMap): The game map.
             player (Entity): The player entity.
         """
         self.entities = entities
         self.event_handler = event_handler
+        self.game_map = game_map
         self.player = player
 
     def handle_events(self, events: Iterable[Any]) -> None:
@@ -51,11 +54,7 @@ class Engine:
             if action is None:
                 continue
 
-            if isinstance(action, MovementAction):
-                self.player.move(dx=action.dx, dy=action.dy)
-
-            elif isinstance(action, EscapeAction):
-                raise SystemExit()
+            action.perform(self, self.player)
 
     def render(self, console: Console, context: Context) -> None:
         """
@@ -68,6 +67,8 @@ class Engine:
         Returns:
             None
         """
+        self.game_map.render(console)
+
         for entity in self.entities:
             console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
