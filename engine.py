@@ -20,7 +20,8 @@ class Engine:
         game_map (GameMap): The game map.
         player (Entity): The player entity.
     """
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler, game_map: GameMap, player: Entity):
+    def __init__(self, entities: Set[Entity], event_handler: EventHandler,
+                 game_map: GameMap, player: Entity):
         """
         Initialize the engine.
 
