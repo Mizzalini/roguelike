@@ -1,4 +1,4 @@
-from typing import Set, Iterable, Any
+from typing import Iterable, Any
 
 from tcod.context import Context
 from tcod.console import Console
@@ -16,27 +16,35 @@ class Engine:
     Responsible for drawing the map and entities, and handling input.
 
     Attributes:
-        entities (Set): The entities in the game.
         event_handler (EventHandler): The event handler.
         game_map (GameMap): The game map.
         player (Entity): The player entity.
     """
-    def __init__(self, entities: Set[Entity], event_handler: EventHandler,
+    def __init__(self, event_handler: EventHandler,
                  game_map: GameMap, player: Entity):
         """
         Initialize the engine.
 
         Args:
-            entities (Set): The entities in the game.
             event_handler (EventHandler): The event handler.
             game_map (GameMap): The game map.
             player (Entity): The player entity.
         """
-        self.entities = entities
         self.event_handler = event_handler
         self.game_map = game_map
         self.player = player
         self.update_fov()
+
+    def handle_enemy_turns(self) -> None:
+        """
+        Handle enemy turns.
+
+        Loops through all entities on the map and handles their turns.
+        """
+        for entity in set(self.game_map.entities) - {self.player}:
+            print(
+                f'The {entity.name} wonders when it will get to take a real '
+                f'turn.')
 
     def handle_events(self, events: Iterable[Any]) -> None:
         """
@@ -59,6 +67,7 @@ class Engine:
 
             action.perform(self, self.player)
 
+            self.handle_enemy_turns()
             self.update_fov()
 
     def update_fov(self) -> None:
@@ -68,7 +77,7 @@ class Engine:
         self.game_map.visible[:] = compute_fov(
             self.game_map.tiles["transparent"],
             (self.player.x, self.player.y),
-            radius=8
+            radius=6
         )
         # If a tile is visible it should be added to explored
         self.game_map.explored |= self.game_map.visible
@@ -87,10 +96,6 @@ class Engine:
             None
         """
         self.game_map.render(console)
-
-        for entity in self.entities:
-            if self.game_map.visible[entity.x, entity.y]:
-                console.print(entity.x, entity.y, entity.char, fg=entity.color)
 
         context.present(console)
         console.clear()
