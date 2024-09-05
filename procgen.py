@@ -1,3 +1,16 @@
+"""
+Procedural generation functions for the dungeon map.
+
+This module contains the functions to generate the dungeon map for the game.
+
+Functions:
+    generate_dungeon: Generate a new dungeon map.
+    tunnel_between: Create a tunnel between two points.
+
+Classes:
+    RectangularRoom: A rectangular room in the dungeon.
+"""
+
 from __future__ import annotations
 
 import random
