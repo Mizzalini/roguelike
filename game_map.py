@@ -8,6 +8,7 @@ from tcod.console import Console
 import tile_types
 
 if TYPE_CHECKING:
+    from engine import Engine
     from entity import Entity
 
 
@@ -16,6 +17,7 @@ class GameMap:
     Class to represent the game map
 
     Attributes:
+        engine (Engine): The game engine.
         width (int): The width of the game map.
         height (int): The height of the game map.
         entities (set[Entity]): The entities on the game map.
@@ -24,16 +26,18 @@ class GameMap:
         explored (np.ndarray): The explored tiles of the game map.
     """
 
-    def __init__(self, width: int, height: int,
+    def __init__(self, engine: Engine, width: int, height: int,
                  entities: Iterable[Entity] = ()):
         """
         Initialize the game map
 
         Args:
+            engine (Engine): The game engine.
             width (int): The width of the game map.
             height (int): The height of the game map.
             entities (Iterable[Entity], optional): The entities on the game map.
         """
+        self.engine = engine
         self.width, self.height = width, height
         self.entities = set(entities)
         self.tiles = np.full((width, height),
@@ -61,7 +65,9 @@ class GameMap:
             Optional[Entity]: The blocking entity at the location.
         """
         for entity in self.entities:
-            if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+            if (entity.blocks_movement
+                    and entity.x == location_x
+                    and entity.y == location_y):
                 return entity
 
         return None
