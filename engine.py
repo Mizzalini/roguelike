@@ -1,12 +1,16 @@
-from typing import Iterable, Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
 
-from entity import Entity
-from game_map import GameMap
 from input_handlers import EventHandler
+
+if TYPE_CHECKING:
+    from entity import Entity
+    from game_map import GameMap
 
 
 class Engine:
@@ -20,20 +24,17 @@ class Engine:
         game_map (GameMap): The game map.
         player (Entity): The player entity.
     """
-    def __init__(self, event_handler: EventHandler,
-                 game_map: GameMap, player: Entity):
+    game_map: GameMap
+
+    def __init__(self, player: Entity):
         """
         Initialize the engine.
 
         Args:
-            event_handler (EventHandler): The event handler.
-            game_map (GameMap): The game map.
             player (Entity): The player entity.
         """
-        self.event_handler = event_handler
-        self.game_map = game_map
+        self.event_handler: EventHandler = EventHandler(self)
         self.player = player
-        self.update_fov()
 
     def handle_enemy_turns(self) -> None:
         """
@@ -45,30 +46,6 @@ class Engine:
             print(
                 f'The {entity.name} wonders when it will get to take a real '
                 f'turn.')
-
-    def handle_events(self, events: Iterable[Any]) -> None:
-        """
-        Handle events.
-
-        Args:
-            events (Iterable): The events to handle.
-
-        Returns:
-            None
-
-        Raises:
-            SystemExit: If the player wants to exit the game.
-        """
-        for event in events:
-            action = self.event_handler.dispatch(event)
-
-            if action is None:
-                continue
-
-            action.perform(self, self.player)
-
-            self.handle_enemy_turns()
-            self.update_fov()
 
     def update_fov(self) -> None:
         """
