@@ -4,7 +4,7 @@ from typing import Optional, Tuple, TYPE_CHECKING, override
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor, Entity
 
 
 class Action:
@@ -14,7 +14,7 @@ class Action:
     Attributes:
         entity: The entity performing the action.
     """
-    def __init__(self, entity: Entity) -> None:
+    def __init__(self, entity: Actor) -> None:
         """
         Initialize the action with the entity performing it.
 
@@ -55,11 +55,23 @@ class EscapeAction(Action):
         raise SystemExit()
 
 
+class WaitAction(Action):
+    """
+    An action to wait for a turn.
+    """
+    @override
+    def perform(self) -> None:
+        """
+        Perform the wait action.
+        """
+        pass
+
+
 class ActionWithDirection(Action):
     """
     An action that requires a direction.
     """
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         """
         Initialize the action with the entity performing it and the direction.
 
@@ -87,6 +99,13 @@ class ActionWithDirection(Action):
         return self.engine.game_map.get_blocking_entity_at_location(
             *self.dest_xy)
 
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """
+        Return the actor at the destination.
+        """
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
     @override
     def perform(self) -> None:
         raise NotImplementedError()
@@ -101,13 +120,18 @@ class MeleeAction(ActionWithDirection):
         """
         Perform the melee action.
         """
-        target = self.blocking_entity
+        target = self.target_actor
         if not target:
             return  # No entity to attack.
 
-        print(
-            f"You kick the {target.name} in the shins, much to its annoyance!"
-        )
+        damage = self.entity.fighter.power - target.fighter.defense
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if damage > 0:
+            target.fighter.hp -= damage
+            print(f"{attack_desc} for {damage} hit points.")
+        else:
+            print(f"{attack_desc} but does no damage.")
 
 
 class MovementAction(ActionWithDirection):
@@ -144,7 +168,7 @@ class BumpAction(ActionWithDirection):
         """
         Determine whether to perform a melee attack or movement.
         """
-        if self.blocking_entity:
+        if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

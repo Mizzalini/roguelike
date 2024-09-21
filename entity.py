@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import copy
-from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
+
+from render_order import RenderOrder
 
 if TYPE_CHECKING:
+    from components.ai import BaseAI
+    from components.fighter import Fighter
     from game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -34,6 +38,7 @@ class Entity:
             color: Tuple[int, int, int] = (255, 255, 255),
             name: str = "<Unnamed>",
             blocks_movement: bool = False,
+            render_order: RenderOrder = RenderOrder.CORPSE
     ):
         """
         Initialize the entity.
@@ -52,6 +57,7 @@ class Entity:
         self.color = color
         self.name = name
         self.blocks_movement = blocks_movement
+        self.render_order = render_order
         if game_map:
             # If game_map isn't provided now then it will be set later.
             self.game_map = game_map
@@ -110,3 +116,57 @@ class Entity:
                 self.game_map.entities.remove(self)
             self.game_map = game_map
             game_map.entities.add(self)
+
+
+class Actor(Entity):
+    """
+    An actor is an entity that can perform actions.
+
+    Attributes:
+        ai: The AI controlling the actor.
+        fighter: The fighter component of the actor.
+    """
+    def __init__(
+            self,
+            *,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            color: Tuple[int, int, int] = (255, 255, 255),
+            name: str = "<Unnamed>",
+            ai_cls: Type[BaseAI],
+            fighter: Fighter,
+    ):
+        """
+        Initialize the actor.
+
+        Args:
+            x: The x-coordinate of the actor.
+            y: The y-coordinate of the actor.
+            char: The character representing the actor.
+            color: The color of the actor, represented as an RGB tuple.
+            name: The name of the actor.
+            ai_cls: The AI class to control the actor.
+            fighter: The fighter component of the actor.
+        """
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=True,
+            render_order=RenderOrder.ACTOR
+        )
+
+        self.ai: Optional[BaseAI] = ai_cls(self)
+
+        self.fighter = fighter
+        self.fighter.entity = self
+
+    @property
+    def is_alive(self) -> bool:
+        """
+        Return whether the actor is alive.
+        """
+        return bool(self.fighter.hp > 0)
